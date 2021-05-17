@@ -1,14 +1,21 @@
-package com.ldh.project04
+package com.ldh.project04.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.room.Room
+import com.ldh.project04.R
+import com.ldh.project04.data.AppDatabase
+import com.ldh.project04.data.model.History
+import com.ldh.project04.isNumber
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,9 +27,15 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.tv_result)
     }
 
-    private val historyLayout: LinearLayout by lazy {
+    private val historyLayout: ConstraintLayout by lazy {
         findViewById(R.id.layout_history)
     }
+
+    private val historyRowLayout: LinearLayout by lazy {
+        findViewById(R.id.layout_history_row)
+    }
+
+    lateinit var db: AppDatabase
 
     private var isOperator = false
     private var hasOperator = false
@@ -30,6 +43,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "FastCampusProject4DB"
+        ).build()
     }
 
     fun buttonClicked(v: View) {
@@ -123,6 +142,10 @@ class MainActivity : AppCompatActivity() {
         val expressionText = expressionTextView.text.toString()
         val resultText = calculateExpression()
 
+        Thread(Runnable {
+            db.historyDao().insertHistory(History(null, expressionText, resultText))
+        }).start()
+
         resultTextView.text = ""
         expressionTextView.text = resultText
 
@@ -162,15 +185,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun historyButtonClicked(v: View) {
+        historyLayout.visibility = View.VISIBLE
+        historyRowLayout.removeAllViews()
+
+        Thread(Runnable {
+            db.historyDao().getAll().reversed().forEach {
+                runOnUiThread {
+                    val layout = LayoutInflater.from(this).inflate(R.layout.item_history, null, false).apply {
+                        findViewById<TextView>(R.id.tv_row_expression).text = it.expression
+                        findViewById<TextView>(R.id.tv_row_result).text = "= ${it.result}"
+                    }
+                    historyRowLayout.addView(layout)
+                }
+            }
+        }).start()
 
     }
 
 
     fun closeHistoryButtonClicked(v: View) {
-
+        historyLayout.visibility = View.GONE
     }
 
     fun historyClearButtonClicked(v: View) {
+        historyRowLayout.removeAllViews()
 
+        Thread(Runnable {
+            db.historyDao().deleteAllHistory()
+        }).start()
     }
 }
