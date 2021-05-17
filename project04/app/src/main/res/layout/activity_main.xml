@@ -74,9 +74,9 @@
                     android:layout_height="match_parent"
                     android:layout_margin="7dp"
                     android:background="@drawable/button_background_gray"
+                    android:clickable="false"
                     android:stateListAnimator="@null"
                     android:text="()"
-                    android:clickable="false"
                     android:textColor="@color/textGreen"
                     android:textSize="28sp" />
 
@@ -105,6 +105,7 @@
             </TableRow>
 
             <TableRow android:layout_weight="1">
+
                 <androidx.appcompat.widget.AppCompatButton
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -152,6 +153,7 @@
             </TableRow>
 
             <TableRow android:layout_weight="1">
+
                 <androidx.appcompat.widget.AppCompatButton
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -198,6 +200,7 @@
             </TableRow>
 
             <TableRow android:layout_weight="1">
+
                 <androidx.appcompat.widget.AppCompatButton
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -245,14 +248,15 @@
             </TableRow>
 
             <TableRow android:layout_weight="1">
+
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_margin="7dp"
                     android:background="@drawable/button_background_gray"
-                    android:onClick="recordButtonClicked"
-                    android:stateListAnimator="@null"
+                    android:onClick="historyButtonClicked"
                     android:src="@drawable/ic_baseline_access_time_24"
+                    android:stateListAnimator="@null"
                     app:tint="@color/black" />
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -271,8 +275,8 @@
                     android:layout_height="match_parent"
                     android:layout_margin="7dp"
                     android:background="@drawable/button_background_gray"
-                    android:stateListAnimator="@null"
                     android:clickable="false"
+                    android:stateListAnimator="@null"
                     android:text="."
                     android:textColor="@color/black"
                     android:textSize="28sp" />
@@ -291,6 +295,58 @@
 
         </TableLayout>
 
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@id/layout_keyboard"
+        tools:visibility="visible">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_close"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:onClick="closeHistoryButtonClicked"
+            android:stateListAnimator="@null"
+            android:text="닫기"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_close">
+
+            <LinearLayout
+                android:id="@+id/layout_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </ScrollView>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="48dp"
+            android:layout_marginBottom="36dp"
+            android:background="@drawable/button_background_green"
+            android:onClick="historyClearButtonClicked"
+            android:stateListAnimator="@null"
+            android:text="저장 기록 모두 삭제"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
