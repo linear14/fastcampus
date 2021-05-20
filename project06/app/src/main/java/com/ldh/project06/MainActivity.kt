@@ -37,6 +37,24 @@ class MainActivity : AppCompatActivity() {
         initSounds()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        soundPool.autoResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        soundPool.autoPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        soundPool.release()
+    }
+
     private fun bindViews() {
         seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
