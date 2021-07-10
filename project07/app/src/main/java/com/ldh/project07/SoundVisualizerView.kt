@@ -27,13 +27,17 @@ class SoundVisualizerView(context: Context, attrs: AttributeSet): View(context, 
     var drawingWidth: Int = 0
     var drawingHeight: Int = 0
     var drawingAmplitudes: List<Int> = emptyList()
-    // var isReplaying: Boolean = false
-    // var replayingPosition: Int = 0
+    var isReplaying: Boolean = false
+    var replayingPosition: Int = 0
 
     private val visualizeRepeatAction: Runnable = object: Runnable {
         override fun run() {
-            val currentAmplitude = onRequestCurrentAmplitude?.invoke()?:0
-            drawingAmplitudes = listOf(currentAmplitude) + drawingAmplitudes
+            if(isReplaying) {
+                replayingPosition++
+            } else {
+                val currentAmplitude = onRequestCurrentAmplitude?.invoke()?:0
+                drawingAmplitudes = listOf(currentAmplitude) + drawingAmplitudes
+            }
 
             invalidate()
             handler?.postDelayed(this, ACTION_INTERVAL)
@@ -55,27 +59,37 @@ class SoundVisualizerView(context: Context, attrs: AttributeSet): View(context, 
         val centerY = drawingHeight / 2f
         var offsetX = drawingWidth.toFloat()
 
-        drawingAmplitudes.forEach { amplitude ->
-            val lineLength = amplitude / MAX_AMPLITUDE * drawingHeight * 0.8F
+        drawingAmplitudes
+            .let {
+                if(isReplaying) {
+                    it.takeLast(replayingPosition)
+                } else {
+                    it
+                }
+            }
+            .forEach { amplitude ->
+                val lineLength = amplitude / MAX_AMPLITUDE * drawingHeight * 0.8F
 
-            offsetX -= LINE_SPACE
-            if(offsetX < 0) return@forEach
+                offsetX -= LINE_SPACE
+                if(offsetX < 0) return@forEach
 
-            canvas.drawLine(
-                offsetX,
-                centerY - lineLength / 2f,
-                offsetX,
-                centerY + lineLength / 2f,
-                amplitudePaint
-            )
-        }
+                canvas.drawLine(
+                    offsetX,
+                    centerY - lineLength / 2f,
+                    offsetX,
+                    centerY + lineLength / 2f,
+                    amplitudePaint
+                )
+            }
     }
 
-    fun startVisualizing() {
+    fun startVisualizing(isReplaying: Boolean) {
+        this.isReplaying = isReplaying
         handler?.post(visualizeRepeatAction)
     }
 
     fun stopVisualizing() {
+        replayingPosition = 0
         handler?.removeCallbacks(visualizeRepeatAction)
     }
 

@@ -22,6 +22,10 @@ class MainActivity : AppCompatActivity() {
         findViewById(R.id.soundVisualizerView)
     }
 
+    private val recordTimeTextView: CountUpView by lazy {
+        findViewById(R.id.tv_record_time)
+    }
+
     private val recordButton: RecordButton by lazy {
         findViewById(R.id.btn_record)
     }
@@ -123,7 +127,8 @@ class MainActivity : AppCompatActivity() {
             prepare()
         }
         recorder?.start()
-        soundVisualizerView.startVisualizing()
+        soundVisualizerView.startVisualizing(false)
+        recordTimeTextView.startCountUp()
         state = State.ON_RECORDING
     }
 
@@ -134,6 +139,7 @@ class MainActivity : AppCompatActivity() {
         }
         recorder = null
         soundVisualizerView.stopVisualizing()
+        recordTimeTextView.stopCountUp()
         state = State.AFTER_RECORDING
     }
 
@@ -142,13 +148,21 @@ class MainActivity : AppCompatActivity() {
             setDataSource(recordingFilePath)
             prepare()   // prepareAsync도 존재
         }
+        player?.setOnCompletionListener {
+            stopPlaying()
+            state = State.AFTER_RECORDING
+        }
         player?.start()
+        soundVisualizerView.startVisualizing(true)
+        recordTimeTextView.startCountUp()
         state = State.ON_PLAYING
     }
 
     private fun stopPlaying() {
         player?.release()
         player = null
+        soundVisualizerView.stopVisualizing()
+        recordTimeTextView.stopCountUp()
         state = State.AFTER_RECORDING
     }
 

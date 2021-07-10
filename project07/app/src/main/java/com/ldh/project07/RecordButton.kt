@@ -5,6 +5,10 @@ import android.util.AttributeSet
 
 class RecordButton(context: Context, attrs: AttributeSet): androidx.appcompat.widget.AppCompatImageButton(context, attrs) {
 
+    init {
+        setBackgroundResource(R.drawable.shape_oval_button)
+    }
+
     fun updateIconWithState(state: State) {
         when(state) {
             State.BEFORE_RECORDING -> {
