@@ -1,17 +1,25 @@
 package com.ldh.project07
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
+import androidx.appcompat.app.AlertDialog
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         const val REQUEST_RECORD_AUDIO_PERMISSION = 201
+    }
+
+    private val soundVisualizerView: SoundVisualizerView by lazy {
+        findViewById(R.id.soundVisualizerView)
     }
 
     private val recordButton: RecordButton by lazy {
@@ -58,7 +66,11 @@ class MainActivity : AppCompatActivity() {
                 grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
 
         if(!audioRecordPermissionGranted) {
-            finish()
+            if(!shouldShowRequestPermissionRationale(permissions.first())) {
+                showPermissionExplanationDialog()
+            } else {
+                finish()
+            }
         }
     }
 
@@ -75,6 +87,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindViews() {
+        soundVisualizerView.onRequestCurrentAmplitude = {
+            recorder?.maxAmplitude?:0
+        }
         recordButton.setOnClickListener {
             when(state) {
                 State.BEFORE_RECORDING -> {
@@ -94,6 +109,7 @@ class MainActivity : AppCompatActivity() {
 
         resetButton.setOnClickListener {
             stopPlaying()
+            soundVisualizerView.clearVisualization()
             state = State.BEFORE_RECORDING
         }
     }
@@ -107,6 +123,7 @@ class MainActivity : AppCompatActivity() {
             prepare()
         }
         recorder?.start()
+        soundVisualizerView.startVisualizing()
         state = State.ON_RECORDING
     }
 
@@ -116,6 +133,7 @@ class MainActivity : AppCompatActivity() {
             release() // 메모리 해제
         }
         recorder = null
+        soundVisualizerView.stopVisualizing()
         state = State.AFTER_RECORDING
     }
 
@@ -132,5 +150,20 @@ class MainActivity : AppCompatActivity() {
         player?.release()
         player = null
         state = State.AFTER_RECORDING
+    }
+
+    private fun showPermissionExplanationDialog() {
+        AlertDialog.Builder(this)
+            .setMessage("녹음 권한을 켜주셔야 앱을 정상적으로 사용할 수 있습니다. 앱 설정 화면으로 진입하셔서 권한을 켜주세요.")
+            .setPositiveButton("권한 변경하러 가기") { _, _ -> navigateToAppSetting() }
+            .setNegativeButton("앱 종료하기") { _, _ -> finish() }
+            .show()
+    }
+
+    private fun navigateToAppSetting() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        val uri: Uri = Uri.fromParts("package", packageName, null)
+        intent.data = uri
+        startActivity(intent)
     }
 }
